@@ -3,7 +3,7 @@
  * Unreal Engine Game Developer Course | Laba.IT
  * 
  * Home Assignment No. 1:
- *  - calculate sphere volume based on radius provided by user
+ *  - calculate sphere volume based on radius provided by a user
  *  - bonus: convert the result into different units
  *
  * Code written by Hubert Pitura (hpitura@gmail.com)
@@ -30,7 +30,7 @@ int main()
 
 	cout << "Please enter a number: ";
 	cin >> radius;
-	cout << "ECHO..CHO..O..oo... " << radius;
+	cout << "ECHO..CHO..O..oo... of your number stored now in some mysterious memory location ... " << radius;
 	
-	cout << "  ...and.. the ... volume of the sphere... you have in mind... is: " << SphereVolume(radius) << endl;
+	cout << "  ...and... the ... volume of the sphere... is: " << SphereVolume(radius) << endl;
 }
