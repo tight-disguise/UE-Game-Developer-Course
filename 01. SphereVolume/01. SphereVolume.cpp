@@ -29,7 +29,7 @@ using namespace std;
 #define NAUTICAL_MILES		10
 
 // display unit abbreviation
-void displayRadiusUnit(short radiusUnit)
+void DisplayRadiusUnit(short radiusUnit)
 {
 	switch (radiusUnit)
 	{
@@ -71,7 +71,7 @@ void displayRadiusUnit(short radiusUnit)
 }
 
 // convert radius input from user's unit to [m] which is used for calculation
-double convertInput(double radius, short radiusUnit)
+double ConvertInput(double radius, short radiusUnit)
 {
 	switch (radiusUnit)
 	{
@@ -131,7 +131,7 @@ double convertInput(double radius, short radiusUnit)
 #define CUBIC_NAUTICAL_MILES	13
 
 // display unit abbreviation
-void displayVolumeUnit(short volumeUnit)
+void DisplayVolumeUnit(short volumeUnit)
 {
 	switch (volumeUnit)
 	{
@@ -182,7 +182,7 @@ void displayVolumeUnit(short volumeUnit)
 }
 
 // convert sphere's volume from internal calculation unit [m^3] to user's output unit
-double convertOutput(double volume, short volumeUnit)
+double ConvertOutput(double volume, short volumeUnit)
 {
 	switch (volumeUnit)
 	{
@@ -254,32 +254,32 @@ int main()
 	// ask user for sphere's radius and its unit
 	cout << "Which unit will you use for sphere's radius?";
 	cout << "\n" << MILIMETRES << ": milimetres ";
-	displayRadiusUnit(MILIMETRES);
+	DisplayRadiusUnit(MILIMETRES);
 	cout << "\n" << CENTIMETRES << ": centimetres ";
-	displayRadiusUnit(CENTIMETRES);
+	DisplayRadiusUnit(CENTIMETRES);
 	cout << "\n" << DECIMETRES << ": decimetres ";
-	displayRadiusUnit(DECIMETRES);
+	DisplayRadiusUnit(DECIMETRES);
 	cout << "\n" << METRES << ": metres ";
-	displayRadiusUnit(METRES);
+	DisplayRadiusUnit(METRES);
 	cout << "\n" << KILOMETRES << ": kilometres ";
-	displayRadiusUnit(KILOMETRES);
+	DisplayRadiusUnit(KILOMETRES);
 	cout << "\n" << INCHES << ": inches ";
-	displayRadiusUnit(INCHES);
+	DisplayRadiusUnit(INCHES);
 	cout << "\n" << FEET << ": feet ";
-	displayRadiusUnit(FEET);
+	DisplayRadiusUnit(FEET);
 	cout << "\n" << YARDS << ": yards ";
-	displayRadiusUnit(YARDS);
+	DisplayRadiusUnit(YARDS);
 	cout << "\n" << TERRESTIAL_MILES << ": terrestial miles ";
-	displayRadiusUnit(TERRESTIAL_MILES);
+	DisplayRadiusUnit(TERRESTIAL_MILES);
 	cout << "\n" << NAUTICAL_MILES << ": nautical miles ";
-	displayRadiusUnit(NAUTICAL_MILES);
+	DisplayRadiusUnit(NAUTICAL_MILES);
 	cout << endl;
 
 	cout << "Please enter a number for your selected unit (" << MILIMETRES << " - " << NAUTICAL_MILES << "): ";
 	cin >> radiusUnit;
 	
 	cout << "Now please enter sphere's radius in ";
-	displayRadiusUnit(radiusUnit);
+	DisplayRadiusUnit(radiusUnit);
 	cout <<	": ";
 	cin >> radius;
 	cout << endl;
@@ -290,38 +290,38 @@ int main()
 	// ask user for sphere's volume unit they want to get it in
 	cout << "Which unit shall the sphere's volume be displayed in?";
 	cout << "\n" << CUBIC_MILIMETRES << ": cubic milimetres ";
-	displayVolumeUnit(CUBIC_MILIMETRES);
+	DisplayVolumeUnit(CUBIC_MILIMETRES);
 	cout << "\n" << CUBIC_CENTIMETRES << ": cubic centimetres ";
-	displayVolumeUnit(CUBIC_CENTIMETRES);
+	DisplayVolumeUnit(CUBIC_CENTIMETRES);
 	cout << "\n" << CUBIC_DECIMETRES << ": cubic decimetres ";
-	displayVolumeUnit(CUBIC_DECIMETRES);
+	DisplayVolumeUnit(CUBIC_DECIMETRES);
 	cout << "\n" << CUBIC_METRES << ": cubic metres ";
-	displayVolumeUnit(CUBIC_METRES);
+	DisplayVolumeUnit(CUBIC_METRES);
 	cout << "\n" << CUBIC_KILOMETRES << ": cubic kilometres ";
-	displayVolumeUnit(CUBIC_KILOMETRES);
+	DisplayVolumeUnit(CUBIC_KILOMETRES);
 	cout << "\n" << CUBIC_INCHES << ": cubic inches ";
-	displayVolumeUnit(CUBIC_INCHES);
+	DisplayVolumeUnit(CUBIC_INCHES);
 	cout << "\n" << CUBIC_FEET << ": cubic feet ";
-	displayVolumeUnit(CUBIC_FEET);
+	DisplayVolumeUnit(CUBIC_FEET);
 	cout << "\n" << PINTS_US << ": US pints ";
-	displayVolumeUnit(PINTS_US);
+	DisplayVolumeUnit(PINTS_US);
 	cout << "\n" << GALLONS_US << ": US gallons ";
-	displayVolumeUnit(GALLONS_US);
+	DisplayVolumeUnit(GALLONS_US);
 	cout << "\n" << LITRES << ": litres ";
-	displayVolumeUnit(LITRES);
+	DisplayVolumeUnit(LITRES);
 	cout << "\n" << BARRELS_OIL << ": oil barrels ";
-	displayVolumeUnit(BARRELS_OIL);
+	DisplayVolumeUnit(BARRELS_OIL);
 	cout << "\n" << CUBIC_TERRESTIAL_MILES << ": cubic terrestial miles ";
-	displayVolumeUnit(CUBIC_TERRESTIAL_MILES);
+	DisplayVolumeUnit(CUBIC_TERRESTIAL_MILES);
 	cout << "\n" << CUBIC_NAUTICAL_MILES << ": cubic nautical miles ";
-	displayVolumeUnit(CUBIC_NAUTICAL_MILES);
+	DisplayVolumeUnit(CUBIC_NAUTICAL_MILES);
 	cout << endl;
 
 	cout << "Please enter a number for your selected unit (" << CUBIC_MILIMETRES << " - " << CUBIC_NAUTICAL_MILES << "): ";
 	cin >> volumeUnit;
 
 	cout << "\nVolume of a sphere with radius of " << radius << " ";
-	displayRadiusUnit(radiusUnit);
+	DisplayRadiusUnit(radiusUnit);
 	cout << " is: ";
 	
 	// sphere's volume calculation is performed in SI units:
@@ -329,8 +329,8 @@ int main()
 	//	volume: [m^3]
 	// first, sphere's radius is converted from user's unit to [m],
 	// then calculation is performed and result is converted from [m^3] to user's unit.
-	cout << convertOutput(SphereVolume(convertInput(radius, radiusUnit)), volumeUnit) << " ";
-	displayVolumeUnit(volumeUnit);
+	cout << ConvertOutput(SphereVolume(ConvertInput(radius, radiusUnit)), volumeUnit) << " ";
+	DisplayVolumeUnit(volumeUnit);
 	
 	cout << endl;
 }
