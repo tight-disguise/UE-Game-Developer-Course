@@ -327,7 +327,7 @@ int main()
 	// sphere's volume calculation is performed in SI units:
 	//	radius: [m]
 	//	volume: [m^3]
-	// first sphere's radius is converted from user's unit to [m],
+	// first, sphere's radius is converted from user's unit to [m],
 	// then calculation is performed and result is converted from [m^3] to user's unit.
 	cout << convertOutput(SphereVolume(convertInput(radius, radiusUnit)), volumeUnit) << " ";
 	displayVolumeUnit(volumeUnit);
