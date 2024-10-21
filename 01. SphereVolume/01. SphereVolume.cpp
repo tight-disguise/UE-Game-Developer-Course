@@ -124,8 +124,8 @@ double convertInput(double radius, short radiusUnit)
 #define CUBIC_INCHES			6
 #define CUBIC_FEET				7
 #define PINTS_US				8
-#define LITRES					9
-#define GALLONS_US				10
+#define GALLONS_US				9
+#define LITRES					10
 #define BARRELS_OIL				11
 #define CUBIC_TERRESTIAL_MILES	12
 #define CUBIC_NAUTICAL_MILES	13
@@ -159,11 +159,11 @@ void displayVolumeUnit(short volumeUnit)
 		case PINTS_US:
 			cout << "[pint(s) (US)]";
 			break;
-		case LITRES:
-			cout << "[l]";
-			break;
 		case GALLONS_US:
 			cout << "[gal (US)]";
+			break;
+		case LITRES:
+			cout << "[l]";
 			break;
 		case BARRELS_OIL:
 			cout << "[oil barrel(s)]";
@@ -210,11 +210,11 @@ double convertOutput(double volume, short volumeUnit)
 		case PINTS_US:
 			return volume * 2.1133764188652e3;
 			break;
-		case LITRES:
-			return volume * 1e3;
-			break;
 		case GALLONS_US:
 			return volume * 2.6417205236e2;
+			break;
+		case LITRES:
+			return volume * 1e3;
 			break;
 		case BARRELS_OIL:
 			return volume * 6.2898107704;
@@ -305,10 +305,10 @@ int main()
 	displayVolumeUnit(CUBIC_FEET);
 	cout << "\n" << PINTS_US << ": US pints ";
 	displayVolumeUnit(PINTS_US);
-	cout << "\n" << LITRES << ": litres ";
-	displayVolumeUnit(LITRES);
 	cout << "\n" << GALLONS_US << ": US gallons ";
 	displayVolumeUnit(GALLONS_US);
+	cout << "\n" << LITRES << ": litres ";
+	displayVolumeUnit(LITRES);
 	cout << "\n" << BARRELS_OIL << ": oil barrels ";
 	displayVolumeUnit(BARRELS_OIL);
 	cout << "\n" << CUBIC_TERRESTIAL_MILES << ": cubic terrestial miles ";
