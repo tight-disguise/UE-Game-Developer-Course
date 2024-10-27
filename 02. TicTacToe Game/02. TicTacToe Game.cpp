@@ -466,12 +466,12 @@ void findSequence(char signToLookFor)
                         // Is the board cell free?
                         if (*(gameBoard + (y - 1) * BOARD_SIZE + x) == emptySign)
                             inFrontY = y - 1;
-                            // inFrontX = x; // not needed, row stays the same anyway
+                            // inFrontX = x; // not needed, column stays the same anyway
                     }
                     // It's not possible
                     else
                     {
-                        // inFrontX = NOT_AVAILABLE; // not needed, row stays the same anyway
+                        // inFrontX = NOT_AVAILABLE; // not needed, column stays the same anyway
                         inFrontY = NOT_AVAILABLE;
                     }
                 }
