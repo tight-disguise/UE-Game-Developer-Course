@@ -10,11 +10,11 @@
  */
 
 #include <iostream>
-#include <cstdlib>  // rand()
+#include <cstdlib>  // srand() & rand()
 
 using namespace std;
 
-#define BOARD_SIZE      5
+#define BOARD_SIZE      8
 
 // Board cell index either out of bounds or cell already taken opponent
 #define NOT_AVAILABLE   -1
@@ -24,6 +24,7 @@ char gameBoard[BOARD_SIZE][BOARD_SIZE];
 const char emptySign = '-';
 const char playerSign = 'X';
 const char AISign = 'O';
+bool logToConsole = true;
 
 // Game host
 const char gameHost[] = "~(*_*)~";
@@ -41,21 +42,8 @@ bool CheckGameState();
 void ChangePlayer();
 void Deintialize();
 
-//int main()
-//{
-//    while (1)
-//    {
-//        srand(time(nullptr));
-//        int x = rand() % 3;
-//        int y = rand() % 3;
-//
-//        cout << x << "  " << y << endl;
-//        cin >> x;
-//    }
-//
-//    return 0;
-//}
-
+/* MAIN PROGRAM CODE */
+// program does not have proper input data validation as it was not set as a requirement :)
 int main()
 {
     // Welcome message
@@ -179,17 +167,19 @@ void GetPlayerInput()
 }
 
 // Completely random AI input
-// (this can take some time if called when board is filled already)
+// (this can take some serious time if called when board is filled already and it's big)
 void GetRandomAIInput()
 {
     short x, y;
     bool inputOK = false;
 
+    srand(time(nullptr));
+
     while (!inputOK)
     {
         x = rand() % BOARD_SIZE;
         y = rand() % BOARD_SIZE;
-
+        
         if (gameBoard[x][y] == emptySign)
         {
             gameBoard[x][y] = AISign;
@@ -200,18 +190,24 @@ void GetRandomAIInput()
     cout << "Random AI X: " << x << "\nRandom AI Y: " << y << "\n" << endl;
 }
 
+// Lots of globals variables ;)
+// Used for searching of same sign sequences
+short maxLineLength = 0;
+short maxLineX = NOT_AVAILABLE;
+short maxLineY = NOT_AVAILABLE;
+
+short currentLineLength = 0;
+short inFrontX = NOT_AVAILABLE;
+short inFrontY = NOT_AVAILABLE;
+short afterEndX = NOT_AVAILABLE;
+short afterEndY = NOT_AVAILABLE;
+
+void findSequence(char);
+
 // A bit more sophisticated AI input
 void GetSmartAIInput()
 {
-    short maxLineLength = 0;
-    short maxLineX = NOT_AVAILABLE;
-    short maxLineY = NOT_AVAILABLE;
-
-    short currentLineLength = 0;
-    short inFrontX = NOT_AVAILABLE;
-    short inFrontY = NOT_AVAILABLE;
-    short afterEndX = NOT_AVAILABLE;
-    short afterEndY = NOT_AVAILABLE;
+    
     
     // Beginning of the game, no point in searching for lines at this stage, just put random AI sign somewhere
     if (totalInputs == 0 or totalInputs == 1)
@@ -220,498 +216,565 @@ void GetSmartAIInput()
     }
     else
     {
-        // Check for the longest AI line in rows
-        for (int y = 0; y < BOARD_SIZE; y++)
-        {
-            // We iterate over elements of a row
-            for (int x = 0; x < BOARD_SIZE; x++)
-            {
-                if (gameBoard[x][y] == AISign)
-                {
-                    // We found line start
-                    if (currentLineLength == 0)
-                    {
-                        // Is it possible to put a sign in front of this line? If so, save position
-                        // Is the index not out of bounds?
-                        if (x - 1 >= 0)
-                        {
-                            // Is the board cell free?
-                            if (gameBoard[x - 1][y] == emptySign)
-                                inFrontX = x - 1;
-                                // inFrontY = y; // not needed, column stays the same anyway
-                        }
-                        // It's not possible
-                        else
-                        {
-                            inFrontX = NOT_AVAILABLE;
-                            // inFrontY = NOT_AVAILABLE; // not needed, column stays the same anyway
-                        }
-                    }
+        maxLineLength = 0;
+        maxLineX = NOT_AVAILABLE;
+        maxLineY = NOT_AVAILABLE;
 
-                    // Count up the length
-                    currentLineLength++;
-
-                    // If we found AI sign at the last cell in a row,
-                    // we know it's not possible to put a sign after it
-                    if (x + 1 == BOARD_SIZE)
-                    {
-                        // Is it the longest line found and is it possible to add a sign at the front of it?
-                        if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE))
-                        {
-                            maxLineLength = currentLineLength;
-                            maxLineX = inFrontX;
-                            maxLineY = y;
-                        }
-
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                        // afterEndY = NOT_AVAILABLE; // not needed, row stays the same anyway
-                    }
-
-                }
-                else if (gameBoard[x][y] == emptySign)
-                {
-                    if (currentLineLength != 0)
-                    {
-                        afterEndX = x;
-                        // afterEndY = y; // not needed, row stays the same anyway
-                    }
-
-                    // Is it the longest line found?
-                    // (if we're here it's for sure possible to add AI sign at least at the end of a line)
-                    if (currentLineLength > maxLineLength)
-                    {
-                        maxLineLength = currentLineLength;
-
-                        // Select either front cell or end cell depending on what's available
-                        if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
-                            maxLineX = (rand() % 2) ? inFrontX : afterEndX;
-                        else if (inFrontX != NOT_AVAILABLE)
-                            maxLineX = inFrontX;
-                        else
-                            maxLineX = afterEndX;
-
-                        maxLineY = y;
-
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                    }
-                }
-                else // playerSign
-                {
-                    // Is it the longest line found and is it possible to add a sign at the front of it?
-                    if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
-                    {
-                        // It's not possible to add anything at the front nor the end
-                        if (inFrontX == NOT_AVAILABLE)
-                        {
-                            currentLineLength = 0;
-                            inFrontX = NOT_AVAILABLE;
-                            afterEndX = NOT_AVAILABLE;
-                        }
-                        else // We can add AI sign at the front
-                        {
-                            maxLineLength = currentLineLength;
-                            maxLineX = inFrontX;
-                            maxLineY = y;
-
-                            currentLineLength = 0;
-                            inFrontX = NOT_AVAILABLE;
-                            afterEndX = NOT_AVAILABLE;
-                        }
-                    }
-
-                    continue;
-                }
-            } // x
-        } // y
-
-        currentLineLength = 0;
-        inFrontX = NOT_AVAILABLE;
-        inFrontY = NOT_AVAILABLE;
-        afterEndX = NOT_AVAILABLE;
-        afterEndY = NOT_AVAILABLE;
+        findSequence(AISign);
+        cout << "findSequence(AISign)    : maxLineLength = " << maxLineLength << " | maxLineX = " << maxLineX << " | maxLineY = " << maxLineY << endl;
         
-        // Check for the longest AI line in columns
-        for (int x = 0; x < BOARD_SIZE; x++)
-        {
-            // We iterate over elements of a column
-            for (int y = 0; y < BOARD_SIZE; y++)
-            {
-                if (gameBoard[x][y] == AISign)
-                {
-                    // We found line start
-                    if (currentLineLength == 0)
-                    {
-                        // Is it possible to put a sign in front (top) of this line? If so, save position
-                        // Is the index not out of bounds?
-                        if (y - 1 >= 0)
-                        {
-                            // Is the board cell free?
-                            if (gameBoard[x][y - 1] == emptySign)
-                                inFrontY = y - 1;
-                                // inFrontX = x; // not needed, row stays the same anyway
-                        }
-                        // It's not possible
-                        else
-                        {
-                            // inFrontX = NOT_AVAILABLE; // not needed, row stays the same anyway
-                            inFrontY = NOT_AVAILABLE; 
-                        }
-                    }
+        findSequence(playerSign);
+        cout << "findSequence(playerSign): maxLineLength = " << maxLineLength << " | maxLineX = " << maxLineX << " | maxLineY = " << maxLineY << endl;
 
-                    // Count up the length
-                    currentLineLength++;
-
-                    // If we found AI sign at the last cell in a column,
-                    // we know it's not possible to put a sign after it
-                    if (y + 1 == BOARD_SIZE)
-                    {
-                        // Is it the longest line found and is it possible to add a sign at the front of it?
-                        if ((currentLineLength > maxLineLength) and (inFrontY != NOT_AVAILABLE))
-                        {
-                            maxLineLength = currentLineLength;
-                            maxLineX = x;
-                            maxLineY = inFrontY;
-                        }
-
-                        currentLineLength = 0;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                        // afterEndX = NOT_AVAILABLE; // not needed, column stays the same anyway
-                    }
-
-                }
-                else if (gameBoard[x][y] == emptySign)
-                {
-                    if (currentLineLength != 0)
-                    {
-                        // afterEndX = x;  // not needed, column stays the same anyway
-                        afterEndY = y;
-                    }
-
-                    // Is it the longest line found?
-                    // (if we're here it's for sure possible to add AI sign at least at the end of a line)
-                    if (currentLineLength > maxLineLength)
-                    {
-                        maxLineLength = currentLineLength;
-
-                        // Select either front cell or end cell depending on what's available
-                        if ((inFrontY != NOT_AVAILABLE) and (afterEndY != NOT_AVAILABLE))
-                            maxLineY = (rand() % 2) ? inFrontY : afterEndY;
-                        else if (inFrontY != NOT_AVAILABLE)
-                            maxLineY = inFrontY;
-                        else
-                            maxLineY = afterEndY;
-
-                        maxLineX = x;
-
-                        currentLineLength = 0;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                    }
-                }
-                else // playerSign
-                {
-                    // Is it the longest line found and is it possible to add a sign at the front of it?
-                    if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
-                    {
-                        // It's not possible to add anything at the front nor the end
-                        if (inFrontY == NOT_AVAILABLE)
-                        {
-                            currentLineLength = 0;
-                            inFrontY = NOT_AVAILABLE;
-                            afterEndY = NOT_AVAILABLE;
-                        }
-                        else // We can add AI sign at the front
-                        {
-                            maxLineLength = currentLineLength;
-                            maxLineX = x;
-                            maxLineY = inFrontY;
-
-                            currentLineLength = 0;
-                            inFrontY = NOT_AVAILABLE;
-                            afterEndY = NOT_AVAILABLE;
-                        }
-                    }
-
-                    continue;
-                }
-            } // x
-        } // y
-        
-        currentLineLength = 0;
-        inFrontX = NOT_AVAILABLE;
-        inFrontY = NOT_AVAILABLE;
-        afterEndX = NOT_AVAILABLE;
-        afterEndY = NOT_AVAILABLE;
-
-        // Look in \ diagonal...
-        for (int i = 0; i < BOARD_SIZE; i++)
-        {
-            if (gameBoard[i][i] == AISign)
-            {
-                // We found line start
-                if (currentLineLength == 0)
-                {
-                    // Is it possible to put a sign in front of this line? If so, save position
-                    // Is the index not out of bounds?
-                    if (i - 1 >= 0)
-                    {
-                        // Is the board cell free?
-                        if (gameBoard[i - 1][i - 1] == emptySign)
-                        {
-                            inFrontX = i - 1;
-                            inFrontY = i - 1;
-                        }
-                    }
-                    // It's not possible
-                    else
-                    {
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                    }
-                }
-
-                // Count up the length
-                currentLineLength++;
-
-                // If we found AI sign at the last cell in a diagonal,
-                // we know it's not possible to put a sign after it
-                if (i + 1 == BOARD_SIZE)
-                {
-                    // Is it the longest line found and is it possible to add a sign at the front of it?
-                    if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE) and (inFrontY != NOT_AVAILABLE))
-                    {
-                        maxLineLength = currentLineLength;
-                        maxLineX = inFrontX;
-                        maxLineY = inFrontY;
-                    }
-
-                    currentLineLength = 0;
-                    inFrontX = NOT_AVAILABLE;
-                    inFrontY = NOT_AVAILABLE;
-                    afterEndX = NOT_AVAILABLE;
-                    afterEndY = NOT_AVAILABLE;
-                }
-            }
-            else if (gameBoard[i][i] == emptySign)
-            {
-                if (currentLineLength != 0)
-                {
-                    afterEndX = i;
-                    afterEndY = i;
-                }
-
-                // Is it the longest line found?
-                // (if we're here it's for sure possible to add AI sign at least at the end of a line within diagonal)
-                if (currentLineLength > maxLineLength)
-                {
-                    maxLineLength = currentLineLength;
-
-                    // Select either front cell or end cell depending on what's available
-                    // (checking only for X, as it's the same for Y)
-                    if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
-                    {
-                        maxLineX = (rand() % 2) ? inFrontX : afterEndX;
-                        maxLineY = maxLineX;
-                    }
-                    else if (inFrontX != NOT_AVAILABLE)
-                    {
-                        maxLineX = inFrontX;
-                        maxLineY = maxLineX;
-                    }
-                    else
-                    {
-                        maxLineX = afterEndX;
-                        maxLineY = maxLineX;
-                    }
-
-                    currentLineLength = 0;
-                    inFrontX = NOT_AVAILABLE;
-                    inFrontY = NOT_AVAILABLE;
-                    afterEndX = NOT_AVAILABLE;
-                    afterEndY = NOT_AVAILABLE;
-                }
-            }
-            else // playerSign
-            {
-                // Is it the longest line found and is it possible to add a sign at the front of it?
-                if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
-                {
-                    // It's not possible to add anything at the front nor the end
-                    if (inFrontX == NOT_AVAILABLE)
-                    {
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                    }
-                    else // We can add AI sign at the front
-                    {
-                        maxLineLength = currentLineLength;
-                        maxLineX = inFrontX;
-                        maxLineY = maxLineX;
-
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                    }
-                }
-
-                continue;
-            }
-        } // i
-        
-        currentLineLength = 0;
-        inFrontX = NOT_AVAILABLE;
-        inFrontY = NOT_AVAILABLE;
-        afterEndX = NOT_AVAILABLE;
-        afterEndY = NOT_AVAILABLE;
-
-        // Look in / diagonal...
-        for (int i = 0; i < BOARD_SIZE; i++)
-        {
-            if (gameBoard[i][BOARD_SIZE - 1 - i] == AISign)
-            {
-                // We found line start
-                if (currentLineLength == 0)
-                {
-                    // Is it possible to put a sign in front of this line? If so, save position
-                    // Is the index not out of bounds?
-                    if ((i - 1 >= 0) and (BOARD_SIZE - i >= 0))
-                    {
-                        // Is the board cell free?
-                        if (gameBoard[i - 1][BOARD_SIZE - i] == emptySign)
-                        {
-                            inFrontX = i - 1;
-                            inFrontY = BOARD_SIZE - i;
-                        }
-                    }
-                    // It's not possible
-                    else
-                    {
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                    }
-                }
-
-                // Count up the length
-                currentLineLength++;
-
-                // If we found AI sign at the last cell in a diagonal,
-                // we know it's not possible to put a sign after it
-                if (i + 1 == BOARD_SIZE)
-                {
-                    // Is it the longest line found and is it possible to add a sign at the front of it?
-                    if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE) and (inFrontY != NOT_AVAILABLE))
-                    {
-                        maxLineLength = currentLineLength;
-                        maxLineX = inFrontX;
-                        maxLineY = inFrontY;
-                    }
-
-                    currentLineLength = 0;
-                    inFrontX = NOT_AVAILABLE;
-                    inFrontY = NOT_AVAILABLE;
-                    afterEndX = NOT_AVAILABLE;
-                    afterEndY = NOT_AVAILABLE;
-                }
-            }
-            else if (gameBoard[i][BOARD_SIZE - 1 - i] == emptySign)
-            {
-                if (currentLineLength != 0)
-                {
-                    afterEndX = i;
-                    afterEndY = BOARD_SIZE - 1 - i;
-                }
-
-                // Is it the longest line found?
-                // (if we're here it's for sure possible to add AI sign at least at the end of a line within diagonal)
-                if (currentLineLength > maxLineLength)
-                {
-                    maxLineLength = currentLineLength;
-
-                    // Select either front cell or end cell depending on what's available
-                    // (checking only for X, as it's the same for Y)
-                    if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
-                    {
-                        switch (rand() % 2)
-                        {
-                        case 0:
-                            maxLineX = inFrontX;
-                            maxLineY = inFrontY;
-                            break;
-                        case 1:
-                            maxLineX = afterEndX;
-                            maxLineY = afterEndY;
-                            break;
-                        }
-                    }
-                    else if (inFrontX != NOT_AVAILABLE)
-                    {
-                        maxLineX = inFrontX;
-                        maxLineY = inFrontY;
-                    }
-                    else
-                    {
-                        maxLineX = afterEndX;
-                        maxLineY = afterEndY;
-                    }
-
-                    currentLineLength = 0;
-                    inFrontX = NOT_AVAILABLE;
-                    inFrontY = NOT_AVAILABLE;
-                    afterEndX = NOT_AVAILABLE;
-                    afterEndY = NOT_AVAILABLE;
-                }
-            }
-            else // playerSign
-            {
-                // Is it the longest line found and is it possible to add a sign at the front of it?
-                if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
-                {
-                    // It's not possible to add anything at the front nor the end
-                    if (inFrontX == NOT_AVAILABLE)
-                    {
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                    }
-                    else // We can add AI sign at the front
-                    {
-                        maxLineLength = currentLineLength;
-                        maxLineX = inFrontX;
-                        maxLineY = inFrontY;
-
-                        currentLineLength = 0;
-                        inFrontX = NOT_AVAILABLE;
-                        inFrontY = NOT_AVAILABLE;
-                        afterEndX = NOT_AVAILABLE;
-                        afterEndY = NOT_AVAILABLE;
-                    }
-                }
-
-                continue;
-            }
-        } // i
-
-        // --------- put the sign on board
+        // Put AI sign on board
         if ((maxLineX != NOT_AVAILABLE) and (maxLineY != NOT_AVAILABLE))
         {
             gameBoard[maxLineX][maxLineY] = AISign;
             cout << "Smart AI X: " << maxLineX << "\nSmart AI Y: " << maxLineY << "\n" << endl;
         }
-        else
+        else // no sequence found, choose random cell on board
+        {
             GetRandomAIInput();
+        }
     } // else
+}
+
+void findSequence(char signToLookFor)
+{
+    //currentLineLength = 0;
+    inFrontX = NOT_AVAILABLE;
+    inFrontY = NOT_AVAILABLE;
+    afterEndX = NOT_AVAILABLE;
+    afterEndY = NOT_AVAILABLE;
+
+    // Check for the longest AI line in rows
+    for (int y = 0; y < BOARD_SIZE; y++)
+    {
+        //currentLineLength = 0;
+
+        // We iterate over elements of a row
+        for (int x = 0; x < BOARD_SIZE; x++)
+        {
+            if (gameBoard[x][y] == signToLookFor)
+            {
+                // We found line start
+                if (currentLineLength == 0)
+                {
+                    // Is it possible to put a sign in front of this line? If so, save position
+                    // Is the index not out of bounds?
+                    if (x - 1 >= 0)
+                    {
+                        // Is the board cell free?
+                        if (gameBoard[x - 1][y] == emptySign)
+                            inFrontX = x - 1;
+                        // inFrontY = y; // not needed, column stays the same anyway
+                    }
+                    // It's not possible
+                    else
+                    {
+                        inFrontX = NOT_AVAILABLE;
+                        // inFrontY = NOT_AVAILABLE; // not needed, column stays the same anyway
+                    }
+                }
+
+                // Count up the length
+                currentLineLength++;
+
+                // If we found AI sign at the last cell in a row,
+                // we know it's not possible to put a sign after it
+                if (x + 1 == BOARD_SIZE)
+                {
+                    // Is it the longest line found and is it possible to add a sign at the front of it?
+                    if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE))
+                    {
+                        maxLineLength = currentLineLength;
+                        maxLineX = inFrontX;
+                        maxLineY = y;
+                    }
+
+                    currentLineLength = 0;
+                    inFrontX = NOT_AVAILABLE;
+                    afterEndX = NOT_AVAILABLE;
+                    // afterEndY = NOT_AVAILABLE; // not needed, row stays the same anyway
+                }
+
+            }
+            else if (gameBoard[x][y] == emptySign)
+            {
+                if (currentLineLength != 0)
+                {
+                    afterEndX = x;
+                    // afterEndY = y; // not needed, row stays the same anyway
+                }
+
+                // Is it the longest line found?
+                // (if we're here it's for sure possible to add AI sign at least at the end of a line)
+                if (currentLineLength > maxLineLength)
+                {
+                    maxLineLength = currentLineLength;
+
+                    // Select either front cell or end cell depending on what's available
+                    if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
+                        maxLineX = (rand() % 2) ? inFrontX : afterEndX;
+                    else if (inFrontX != NOT_AVAILABLE)
+                        maxLineX = inFrontX;
+                    else
+                        maxLineX = afterEndX;
+
+                    maxLineY = y;
+                }
+
+                currentLineLength = 0;
+                inFrontX = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+            }
+            else // !(signToLookFor or emptySign)
+            {
+                // Is it the longest line found and is it possible to add a sign at the front of it?
+                if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
+                {
+                    // It's not possible to add anything at the front nor the end
+                    if (inFrontX == NOT_AVAILABLE)
+                    {
+                        afterEndX = NOT_AVAILABLE;
+                    }
+                    else // We can add AI sign at the front
+                    {
+                        maxLineLength = currentLineLength;
+                        maxLineX = inFrontX;
+                        maxLineY = y;
+
+                        // currentLineLength = 0; // moved below
+                        inFrontX = NOT_AVAILABLE;
+                        afterEndX = NOT_AVAILABLE;
+                    }
+
+                    //currentLineLength = 0;  // moved !!!!!!!!!!!!!!!!!!!
+                }
+
+                currentLineLength = 0;  // moved !!!!!!!!!!!!!!!!!!!
+                inFrontX = NOT_AVAILABLE;
+                inFrontY = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;
+                //continue;
+            }
+        } // x
+    } // y
+
+    //currentLineLength = 0;
+    inFrontX = NOT_AVAILABLE;
+    inFrontY = NOT_AVAILABLE;
+    afterEndX = NOT_AVAILABLE;
+    afterEndY = NOT_AVAILABLE;
+
+    // Check for the longest AI line in columns
+    for (int x = 0; x < BOARD_SIZE; x++)
+    {
+        //currentLineLength = 0;
+        
+        // We iterate over elements of a column
+        for (int y = 0; y < BOARD_SIZE; y++)
+        {
+            if (gameBoard[x][y] == signToLookFor)
+            {
+                // We found line start
+                if (currentLineLength == 0)
+                {
+                    // Is it possible to put a sign in front (top) of this line? If so, save position
+                    // Is the index not out of bounds?
+                    if (y - 1 >= 0)
+                    {
+                        // Is the board cell free?
+                        if (gameBoard[x][y - 1] == emptySign)
+                            inFrontY = y - 1;
+                        // inFrontX = x; // not needed, row stays the same anyway
+                    }
+                    // It's not possible
+                    else
+                    {
+                        // inFrontX = NOT_AVAILABLE; // not needed, row stays the same anyway
+                        inFrontY = NOT_AVAILABLE;
+                    }
+                }
+
+                // Count up the length
+                currentLineLength++;
+
+                // If we found AI sign at the last cell in a column,
+                // we know it's not possible to put a sign after it
+                    if (y + 1 == BOARD_SIZE)
+                {
+                    // Is it the longest line found and is it possible to add a sign at the front of it?
+                    if ((currentLineLength > maxLineLength) and (inFrontY != NOT_AVAILABLE))
+                    {
+                        maxLineLength = currentLineLength;
+                        maxLineX = x;
+                        maxLineY = inFrontY;
+                    }
+
+                    currentLineLength = 0;
+                    inFrontY = NOT_AVAILABLE;
+                    afterEndY = NOT_AVAILABLE;
+                    // afterEndX = NOT_AVAILABLE; // not needed, column stays the same anyway
+                }
+
+            }
+            else if (gameBoard[x][y] == emptySign)
+            {
+                if (currentLineLength != 0)
+                {
+                    // afterEndX = x;  // not needed, column stays the same anyway
+                    afterEndY = y;
+                }
+
+                // Is it the longest line found?
+                // (if we're here it's for sure possible to add AI sign at least at the end of a line)
+                if (currentLineLength > maxLineLength)
+                {
+                    maxLineLength = currentLineLength;
+
+                    // Select either front cell or end cell depending on what's available
+                    if ((inFrontY != NOT_AVAILABLE) and (afterEndY != NOT_AVAILABLE))
+                        maxLineY = (rand() % 2) ? inFrontY : afterEndY;
+                    else if (inFrontY != NOT_AVAILABLE)
+                        maxLineY = inFrontY;
+                    else
+                        maxLineY = afterEndY;
+
+                    maxLineX = x;
+                }
+
+                currentLineLength = 0;      //!!!!!!!!!!!!!!!!!!!!!!! moved
+                inFrontY = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;
+            }
+            else // !(signToLookFor or emptySign)
+            {
+                // Is it the longest line found and is it possible to add a sign at the front of it?
+                if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
+                {
+                    // It's not possible to add anything at the front nor the end
+                    if (inFrontY == NOT_AVAILABLE)
+                    {
+                        // currentLineLength = 0; // moved below
+                        // inFrontY = NOT_AVAILABLE;
+                        afterEndY = NOT_AVAILABLE;
+                    }
+                    else // We can add AI sign at the front
+                    {
+                        maxLineLength = currentLineLength;
+                        maxLineX = x;
+                        maxLineY = inFrontY;
+
+                        // currentLineLength = 0; // moved below
+                        inFrontY = NOT_AVAILABLE;
+                        afterEndY = NOT_AVAILABLE;
+                    }
+
+                    //currentLineLength = 0; // moved1!!!!!!!!!!!!!!!!!!!!!!
+                }
+                
+                currentLineLength = 0; // moved1!!!!!!!!!!!!!!!!!!!!!!
+                inFrontX = NOT_AVAILABLE;
+                inFrontY = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;
+                //continue;
+            }
+        } // y
+    } // x
+
+    currentLineLength = 0;
+    inFrontX = NOT_AVAILABLE;
+    inFrontY = NOT_AVAILABLE;
+    afterEndX = NOT_AVAILABLE;
+    afterEndY = NOT_AVAILABLE;
+
+    // Look in \ diagonal...
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (gameBoard[i][i] == signToLookFor)
+        {
+            // We found line start
+            if (currentLineLength == 0)
+            {
+                // Is it possible to put a sign in front of this line? If so, save position
+                // Is the index not out of bounds?
+                if (i - 1 >= 0)
+                {
+                    // Is the board cell free?
+                    if (gameBoard[i - 1][i - 1] == emptySign)
+                    {
+                        inFrontX = i - 1;
+                        inFrontY = i - 1;
+                    }
+                }
+                // It's not possible
+                else
+                {
+                    inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                }
+            }
+
+            // Count up the length
+            currentLineLength++;
+
+            // If we found AI sign at the last cell in a diagonal,
+            // we know it's not possible to put a sign after it
+            if (i + 1 == BOARD_SIZE)
+            {
+                // Is it the longest line found and is it possible to add a sign at the front of it?
+                if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE) and (inFrontY != NOT_AVAILABLE))
+                {
+                    maxLineLength = currentLineLength;
+                    maxLineX = inFrontX;
+                    maxLineY = inFrontY;
+                }
+
+                currentLineLength = 0;
+                inFrontX = NOT_AVAILABLE;
+                inFrontY = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;
+            }
+        }
+        else if (gameBoard[i][i] == emptySign)
+        {
+            if (currentLineLength != 0)
+            {
+                afterEndX = i;
+                afterEndY = i;
+            }
+
+            // Is it the longest line found?
+            // (if we're here it's for sure possible to add AI sign at least at the end of a line within diagonal)
+            if (currentLineLength > maxLineLength)
+            {
+                maxLineLength = currentLineLength;
+
+                // Select either front cell or end cell depending on what's available
+                // (checking only for X, as it's the same for Y)
+                if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
+                {
+                    srand(time(nullptr));
+                    maxLineX = (rand() % 2) ? inFrontX : afterEndX;
+                    maxLineY = maxLineX;
+                }
+                else if (inFrontX != NOT_AVAILABLE)
+                {
+                    maxLineX = inFrontX;
+                    maxLineY = maxLineX;
+                }
+                else
+                {
+                    maxLineX = afterEndX;
+                    maxLineY = maxLineX;
+                }
+            }
+
+            //moved
+            currentLineLength = 0;
+            inFrontX = NOT_AVAILABLE;
+            inFrontY = NOT_AVAILABLE;
+            afterEndX = NOT_AVAILABLE;
+            afterEndY = NOT_AVAILABLE;
+        }
+        else // !(signToLookFor or emptySign)
+        {
+            // Is it the longest line found and is it possible to add a sign at the front of it?
+            if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
+            {
+                // It's not possible to add anything at the front nor the end
+                if (inFrontX == NOT_AVAILABLE)
+                {
+                    //currentLineLength = 0;
+                    // inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                    afterEndX = NOT_AVAILABLE;
+                    afterEndY = NOT_AVAILABLE;
+                }
+                else // We can add AI sign at the front
+                {
+                    maxLineLength = currentLineLength;
+                    maxLineX = inFrontX;
+                    maxLineY = maxLineX;
+
+                    //currentLineLength = 0;
+                    /*inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                    afterEndX = NOT_AVAILABLE;
+                    afterEndY = NOT_AVAILABLE;*/
+                }
+
+                //currentLineLength = 0; // m0ved !!!!!!!!!!!!!!
+            }
+
+            currentLineLength = 0; // m0ved !!!!!!!!!!!!!!
+            inFrontX = NOT_AVAILABLE;
+            inFrontY = NOT_AVAILABLE;
+            afterEndX = NOT_AVAILABLE;
+            afterEndY = NOT_AVAILABLE;
+            //continue;
+        }
+    } // i
+
+    currentLineLength = 0;
+    inFrontX = NOT_AVAILABLE;
+    inFrontY = NOT_AVAILABLE;
+    afterEndX = NOT_AVAILABLE;
+    afterEndY = NOT_AVAILABLE;
+
+    // Look in / diagonal...
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        if (gameBoard[i][BOARD_SIZE - 1 - i] == signToLookFor)
+        {
+            // We found line start
+            if (currentLineLength == 0)
+            {
+                // Is it possible to put a sign in front of this line? If so, save position
+                // Is the index not out of bounds?
+                if ((i - 1 >= 0) and (BOARD_SIZE - i >= 0))
+                {
+                    // Is the board cell free?
+                    if (gameBoard[i - 1][BOARD_SIZE - i] == emptySign)
+                    {
+                        inFrontX = i - 1;
+                        inFrontY = BOARD_SIZE - i;
+                    }
+                }
+                // It's not possible
+                else
+                {
+                    inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                }
+            }
+
+            // Count up the length
+            currentLineLength++;
+
+            // If we found AI sign at the last cell in a diagonal,
+            // we know it's not possible to put a sign after it
+            if (i + 1 == BOARD_SIZE)
+            {
+                // Is it the longest line found and is it possible to add a sign at the front of it?
+                if ((currentLineLength > maxLineLength) and (inFrontX != NOT_AVAILABLE) and (inFrontY != NOT_AVAILABLE))
+                {
+                    maxLineLength = currentLineLength;
+                    maxLineX = inFrontX;
+                    maxLineY = inFrontY;
+                }
+
+                currentLineLength = 0;
+                inFrontX = NOT_AVAILABLE;
+                inFrontY = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;
+            }
+        }
+        else if (gameBoard[i][BOARD_SIZE - 1 - i] == emptySign)
+        {
+            if (currentLineLength != 0)
+            {
+                afterEndX = i;
+                afterEndY = BOARD_SIZE - 1 - i;
+            }
+
+            // Is it the longest line found?
+            // (if we're here it's for sure possible to add AI sign at least at the end of a line within diagonal)
+            if (currentLineLength > maxLineLength)
+            {
+                maxLineLength = currentLineLength;
+
+                // Select either front cell or end cell depending on what's available
+                // (checking only for X, as it's the same for Y)
+                if ((inFrontX != NOT_AVAILABLE) and (afterEndX != NOT_AVAILABLE))
+                {
+                    switch (rand() % 2)
+                    {
+                    case 0:
+                        maxLineX = inFrontX;
+                        maxLineY = inFrontY;
+                        break;
+                    case 1:
+                        maxLineX = afterEndX;
+                        maxLineY = afterEndY;
+                        break;
+                    }
+                }
+                else if (inFrontX != NOT_AVAILABLE)
+                {
+                    maxLineX = inFrontX;
+                    maxLineY = inFrontY;
+                }
+                else
+                {
+                    maxLineX = afterEndX;
+                    maxLineY = afterEndY;
+                }
+
+                /*currentLineLength = 0;
+                inFrontX = NOT_AVAILABLE;
+                inFrontY = NOT_AVAILABLE;
+                afterEndX = NOT_AVAILABLE;
+                afterEndY = NOT_AVAILABLE;*/
+            }
+            currentLineLength = 0;
+            inFrontX = NOT_AVAILABLE;
+            inFrontY = NOT_AVAILABLE;
+            afterEndX = NOT_AVAILABLE;
+            afterEndY = NOT_AVAILABLE;
+        }
+        else // !(signToLookFor or emptySign)
+        {
+            // Is it the longest line found and is it possible to add a sign at the front of it?
+            if ((currentLineLength != 0) and (currentLineLength > maxLineLength))
+            {
+                // It's not possible to add anything at the front nor the end
+                if (inFrontX == NOT_AVAILABLE)
+                {
+                    // currentLineLength = 0;
+                    // inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                    afterEndX = NOT_AVAILABLE;
+                    afterEndY = NOT_AVAILABLE;
+                }
+                else // We can add AI sign at the front
+                {
+                    maxLineLength = currentLineLength;
+                    maxLineX = inFrontX;
+                    maxLineY = inFrontY;
+
+                    // currentLineLength = 0;
+                    /*inFrontX = NOT_AVAILABLE;
+                    inFrontY = NOT_AVAILABLE;
+                    afterEndX = NOT_AVAILABLE;
+                    afterEndY = NOT_AVAILABLE;*/
+                }
+
+                //currentLineLength = 0;
+            }
+
+            currentLineLength = 0;
+            inFrontX = NOT_AVAILABLE;
+            inFrontY = NOT_AVAILABLE;
+            afterEndX = NOT_AVAILABLE;
+            afterEndY = NOT_AVAILABLE;
+            //continue;
+        }
+    } // i
+
+    // --------- put the sign on board
+    /*if ((maxLineX != NOT_AVAILABLE) and (maxLineY != NOT_AVAILABLE))
+    {
+        gameBoard[maxLineX][maxLineY] = AISign;
+        cout << "Smart AI X: " << maxLineX << "\nSmart AI Y: " << maxLineY << "\n" << endl;
+    }
+    else
+        GetRandomAIInput();*/
 }
 
 // Check if current player has won the game
