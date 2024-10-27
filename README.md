@@ -16,8 +16,8 @@ Home Assignment No. 2:
 
 Implemented TicTacToe Game can be played with a computer opponent (AI ;)) on user selectable game board size, for which memory is allocated dynamically during runtime.
 
-AI algoritm is maybe not the best in the world, but serviceable and good enough for a challenge! When it's computer turn, it searches for the longest line on the board and adds a sign to it. If found line is owned by AI, this move enlongens it and raises chance of winning; if opponent's, it blocks further expansion in that direction. If neither AI's nor opponent's line is found, a random cell on the board will be chosen to put a sign (this can take quite a while unfortunately, in edge case scenario where selected board size is big and board is almost full already).
+AI algoritm is maybe not the best in the world, but serviceable and good enough for a challenge! When it's computer turn, it searches for the longest line on the board to which a sign can be added either to the beginning or end side of it. If line found is owned by AI, this move enlongens it and raises chances of computer winning (and SkyNet taking over the world ;)); if opponent's, it blocks further line extension in that direction. If neither AI's nor opponent's line can be found which is feasible of adding a new sign to it, a random cell on the board will be chosen (in edge case scenario where selected board size is big and board is almost full already this can take quite a while unfortunately).
 
-There are, of course, obvious downsides to this implementation, that can be seen after a bit of play, and as such, there is room for improvement.
+There are, of course, obvious downsides to this implementation, which can be seen after a bit of play, and as such, there is room for improvement.
 ___
 All code written by Hubert Pitura (hpitura@gmail.com)
