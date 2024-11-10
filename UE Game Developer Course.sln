@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02. TicTacToe Game", "02. T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03. Complex Number Class", "03. Complex Number Class\03. Complex Number Class.vcxproj", "{FE79B5BA-7CE9-40B9-A938-2007BABF54AB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04. Card Game", "04. Card Game\04. Card Game.vcxproj", "{82413D4F-5948-4965-B8AB-A577C35835FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{FE79B5BA-7CE9-40B9-A938-2007BABF54AB}.Release|x64.Build.0 = Release|x64
 		{FE79B5BA-7CE9-40B9-A938-2007BABF54AB}.Release|x86.ActiveCfg = Release|Win32
 		{FE79B5BA-7CE9-40B9-A938-2007BABF54AB}.Release|x86.Build.0 = Release|Win32
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Debug|x64.ActiveCfg = Debug|x64
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Debug|x64.Build.0 = Debug|x64
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Debug|x86.ActiveCfg = Debug|Win32
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Debug|x86.Build.0 = Debug|Win32
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Release|x64.ActiveCfg = Release|x64
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Release|x64.Build.0 = Release|x64
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Release|x86.ActiveCfg = Release|Win32
+		{82413D4F-5948-4965-B8AB-A577C35835FB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

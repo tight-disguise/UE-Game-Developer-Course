@@ -29,5 +29,11 @@ Home Assignment No. 3:
   * overloaded operators: +, -, *, /, =
   * `Print()` method to display complex number
 * `main()` function should implement a set of tests of implemented complex number class & operations.
+
+## 04. Card Game
+Home Assignment No. 4:
+* implement a card game
+
+Implemented game is based and follows the rules of Uno card game (https://www.unorules.org).
 ___
 All code written by Hubert Pitura (hpitura@gmail.com)
