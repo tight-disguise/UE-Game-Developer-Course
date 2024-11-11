@@ -607,7 +607,7 @@ public:
         }
         else
         {
-            cout << "\nPlayer " << player + 1 << ": nothing fit, I draw a card!\n";
+            cout << "\nPlayer " << player + 1 << ": nothing fit, I drew a card!\n";
 
             if(drawPile_.IsEmpty())
                 Reshuffle();
@@ -622,7 +622,7 @@ public:
 
         // Scream UNO!
         if(hands_[player].GetDeckSize() == 1)
-            cout << "\nUNO!" << endl;
+            cout << "\nPLAYER " << player + 1 << " screams UNO!!!" << endl; 
     }
 
     void AITurn(size_t player)
@@ -749,7 +749,7 @@ public:
         }
         else
         {
-            cout << "\nPlayer " << player + 1 << ": nothing fit, I draw a card!\n";
+            cout << "\nPlayer " << player + 1 << ": nothing fit, I drew a card!\n";
 
             if(drawPile_.IsEmpty())
                 Reshuffle();
