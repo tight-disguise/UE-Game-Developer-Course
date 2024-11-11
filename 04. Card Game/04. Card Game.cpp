@@ -850,12 +850,18 @@ private:
 
     void Reshuffle()
     {
+        Card card = discardPile_.DrawCard();
+        
         discardPile_.Shuffle();
         
         size_t deckSize = discardPile_.GetDeckSize();
         
         for(size_t c = 0; c < deckSize; ++c)
             drawPile_.AppendCard(discardPile_.DrawCard());
+
+        discardPile_.AppendCard(card);
+        
+        
     }
 };
 
