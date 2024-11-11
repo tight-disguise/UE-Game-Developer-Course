@@ -26,9 +26,9 @@ Home Assignment No. 3:
 * class should contain:
   * default, parametric & copying constructor
   * destructor
-  * overloaded operators: +, -, *, /, =
+  * overloaded operators: `+`, `-`, `*`, `/`, `=`
   * `Print()` method to display complex number
-* `main()` function should implement a set of tests of implemented complex number class & operations.
+* `main()` function should implement a set of tests of implemented complex number class & operations
 
 ## 04. Card Game
 Home Assignment No. 4:
