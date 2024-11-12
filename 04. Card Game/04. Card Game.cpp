@@ -607,7 +607,7 @@ public:
         }
         else
         {
-            cout << "\nPlayer " << player + 1 << ": nothing fit, I drew a card!\n";
+            cout << "\nPlayer " << player + 1 << ": nothing fits, I'm drawing a card!\n";
 
             if(drawPile_.IsEmpty())
                 Reshuffle();
@@ -749,7 +749,7 @@ public:
         }
         else
         {
-            cout << "\nPlayer " << player + 1 << ": nothing fit, I drew a card!\n";
+            cout << "\nPlayer " << player + 1 << ": nothing fits, I'm drawing a card!\n";
 
             if(drawPile_.IsEmpty())
                 Reshuffle();
