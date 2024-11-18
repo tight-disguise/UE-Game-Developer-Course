@@ -166,7 +166,7 @@ public:
         return this->bookStatus_;
     }
     
-    void setBookStatus(const BookStatus& bookStatus, UserID userID = static_cast<UserID>(0))
+    void setBookStatus(const BookStatus bookStatus, UserID userID = static_cast<UserID>(0))
     {
         // userID == 0 is not a valid user ID
         if ((bookStatus == BookStatus::booked or bookStatus == BookStatus::rented) and userID == static_cast<UserID>(0))
@@ -180,7 +180,7 @@ public:
 
     UserID getUserID() const
     {
-        return this->userID_;
+        return this -> userID_;
     }
     
 private:
@@ -196,10 +196,6 @@ ostream& operator<<(ostream& os, const LibraryBook& book)
     cout << "Publisher: " << book.publisher_ << '\n';
     cout << "ISBN: " << book.ISBN_ << '\n';
     cout << "Book Status: " << to_string(book.getBookStatus());
-
-    if (book.getBookStatus() == BookStatus::booked or book.getBookStatus() == BookStatus::rented)
-        cout << " by " << "TODO GET USER NAME FROM ID HERE";
-
     cout << endl;
 
     return os;
@@ -267,77 +263,13 @@ ostream& operator<<(ostream& os, const User& user)
 class Library
 {
 public:
-    Library() = default;
-
-    void addBook()
-    {
-        LibraryBook book;
-        string input { "" };
-        
-        cout << "<< Adding a new book >>" << endl;
-
-        bool inputOK = false;
-        cin.clear();
-        //cin.ignore(INT_MAX, '\n');
-            
-        while(!inputOK)
-        {                    
-            cout << "Please enter author's name: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        book.setAuthor(input);
-        input.clear();
-        inputOK = false;
-            
-        while(!inputOK)
-        {                    
-            cout << "Please enter book's title: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        book.setTitle(input);
-        input.clear();
-        inputOK = false;
-
-        while(!inputOK)
-        {                    
-            cout << "Please enter book's publisher: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        book.setPublisher(input);
-        input.clear();
-        inputOK = false;
-
-        while(!inputOK)
-        {
-            cout << "Please enter book's ISBN (format: xxx-x-xx-xxxxxx-x): ";
-            cin >> input;
-            if(!input.empty())
-                inputOK = true;
-        }
-        
-        book.setISBN(input);
-
-        book.setBookStatus(BookStatus::available);
-        
-        // add book at new ID (here it's just another available integer in a sequence)
-        addBook(book);
-    }
-
-    void addBook(const LibraryBook& book)
+    BookID addBook(const LibraryBook& book)
     {
         // add book at new ID (here it's just another available integer in a sequence)
         bool idOK = false;
         // (bookID == 0 is not used, that's why size + 1)
-        BookID bookID = books_.size() + 1;
+        // BookID bookID = books_.size() + 1;
+        BookID bookID = static_cast<BookID>(1);
         
         while(!idOK)
         {
@@ -348,7 +280,9 @@ public:
             }
             else
                 bookID++;
-        }            
+        }
+
+        return bookID;
     }
 
     void addBookAtID(const LibraryBook& book, BookID bookID)
@@ -368,69 +302,55 @@ public:
         else if ((books_[bookID].getBookStatus() == BookStatus::booked) or (books_[bookID].getBookStatus() == BookStatus::rented))
         {
             cout << "Error: cannot remove book. The book is booked or rented from the library." << endl;
+            printBookInfo(bookID);
         }
         else
         {
+            printBookInfo(bookID);
             books_.erase(bookID);
-            cout << "Info: Book removed from the library." << endl;
+            cout << "\nInfo: Book removed from the library." << endl;
         }
     }
 
-    void addUser()
+    void setBookStatus(const BookID bookID, const UserID userID, const BookStatus bookStatus)
     {
-        User user;
-        string input { "" };
-        
-        cout << "<< Adding a new user >>" << endl;
-        
-        bool inputOK = false;
-        cin.clear();
-        cin.ignore(INT_MAX, '\n');
-
-        while(!inputOK)
-        {
-            cout << "Please enter user name: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        user.setName(input);
-        input.clear();
-        inputOK = false;
-
-        while(!inputOK)
-        {
-            cout << "Please enter user surname: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        user.setSurname(input);
-        input.clear();
-        inputOK = false;
-
-        while(!inputOK)
-        {
-            cout << "Please enter user email: ";
-            getline(cin, input);
-            if(!input.empty())
-                inputOK = true;
-        }
-
-        user.setEmail(input);
-
-        // add user at new ID (here it's just another available integer in a sequence)
-        addUser(user);
+        if (!books_.contains(bookID))
+            cout << "Error: Book with given ID does not exist in the library." << endl;
+        else if (!users_.contains(userID))
+            cout << "Error: User with given ID does not exist in the library." << endl;
+        else if (bookStatus == BookStatus::booked or bookStatus == BookStatus::rented)
+            books_[bookID].setBookStatus(bookStatus, userID);
+        else
+            // User ID will be set to 0
+            books_[bookID].setBookStatus(bookStatus);
     }
 
-    void addUser(const User& user)
+    BookStatus getBookStatus(const BookID bookID)
+    {
+        if (!books_.contains(bookID))
+        {
+            cout << "Error: Book with given ID does not exist in the library." << endl;
+            return BookStatus::unavailable;
+        }
+        else
+            return books_[bookID].getBookStatus();
+    }
+
+    string getBookTitle(const BookID bookID)
+    {
+        if (!books_.contains(bookID))
+            cout << "Error: Book with given ID does not exist in the library." << endl;
+        else
+            return books_[bookID].getTitle();
+    }
+
+    UserID addUser(const User& user)
     {
         // add user at new ID (here it's just another available integer in a sequence)
         bool idOK = false;
         // (userID == 0 is not used, that's why size + 1)
-        UserID userID = users_.size() + 1;
+        // UserID userID = users_.size() + 1;
+        UserID userID = static_cast<UserID>(1);
         
         while(!idOK)
         {
@@ -441,7 +361,9 @@ public:
             }
             else
                 userID++;
-        }        
+        }
+
+        return userID;
     }
 
     void addUserAtID(const User& user, UserID userID)
@@ -452,56 +374,140 @@ public:
             cout << "Error: user already exists at the given ID!" << endl;            
     }
 
+    string getUserName(const UserID userID)
+    {
+        if(!users_.contains(userID))
+            cout << "Error: User with given ID does not exist!" << endl;
+        else
+            return users_[userID].getName() + " " + users_[userID].getSurname();
+    }
+
+    // Get user ID by book ID (0 is returned if not booked or rented)
+    UserID getUserID(const BookID bookID)
+    {
+        if(!books_.contains(bookID))
+            cout << "Error: Book with given ID does not exist!" << endl;
+        else
+            return books_[bookID].getUserID();
+    }
+
     void removeUser(const UserID userID)
     {
         if (!users_.contains(userID))
         {
-            cout << "Error: User with given ID does not exist in the library." << endl;
-        }
-        
-        bool removeOK = true;
-        
-        for (auto e : books_)
-        {
-            if (e.second.getUserID() == userID)
-            {
-                cout << "Info: \"" + e.second.getTitle() + "\" book is still " + to_string(e.second.getBookStatus()) + " by the user." << endl;
-                removeOK = false;
-            }
-        }
-        
-        if (!removeOK)
-        {
-            cout << "Error: cannot remove user. The user still have books booked or rented from the library." << endl;
+            cout << "\nError: User with given ID does not exist in the library." << endl;
         }
         else
         {
-            users_.erase(userID);
-            cout << "Info: User removed from the library." << endl;
+            bool removeOK = true;
+
+            cout << '\n';
+        
+            for (auto e : books_)
+            {
+                if (e.second.getUserID() == userID)
+                {
+                    cout << '\"' + e.second.getTitle() + "\" (book ID: " << e.first << ") is still " << to_string(e.second.getBookStatus()) << " by the user." << endl;
+                    removeOK = false;
+                }
+            }
+        
+            if (!removeOK)
+            {
+                cout << "\nError: cannot remove user. The user still have book(s) booked or rented from the library." << endl;
+            }
+            else
+            {
+                cout << users_[userID];
+                users_.erase(userID);
+                cout << "\nInfo: User removed from the library." << endl;
+            }
         }
     }
 
     void printBookInfo(const BookID bookID)
-    {
+    {        
         if (!books_.contains(bookID))
-            cout << "Book with given ID does not exist in the library." << endl;
+            cout << "\nBook with given ID does not exist in the library." << endl;
         else
+        {
             cout << "\nBook ID: " << bookID << '\n' << books_[bookID];
+
+            if (books_[bookID].getBookStatus() == BookStatus::booked)
+                cout << "Book is " << to_string(BookStatus::booked) << " by " << getUserName(books_[bookID].getUserID()) << " (user ID: " << books_[bookID].getUserID() << ")" << endl;
+            else if (books_[bookID].getBookStatus() == BookStatus::rented)
+                cout << "Book is " << to_string(BookStatus::rented) << " by " << getUserName(books_[bookID].getUserID()) << " (user ID: " << books_[bookID].getUserID() << ")" << endl;
+        }
     }
     
     void printBooks()
     {
+        cout << "<< Displaying all books >>" << endl;
+        
         if (books_.empty())
-            cout << "No books found." << endl;
+            cout << "\nNo books found." << endl;
         else
             for (auto const [bookID, book] : books_)
+            {
                 cout << "\nBook ID: " << bookID << '\n' << book;
+
+                if (books_[bookID].getBookStatus() == BookStatus::booked or books_[bookID].getBookStatus() == BookStatus::rented)
+                    cout << "Book is " << to_string(books_[bookID].getBookStatus()) << " by " << getUserName(books_[bookID].getUserID()) << " (user ID: " << books_[bookID].getUserID() << ")" << endl;
+            }
     }
 
+    void printBooksByStatus(BookStatus status)
+    {
+        bool found = false;
+        
+        for (auto const [bookID, book] : books_)
+            if (book.getBookStatus() == status)
+            {
+                cout << "\nBook ID: " << bookID << '\n' << book;
+                found = true;
+
+                if (books_[bookID].getBookStatus() == BookStatus::booked or books_[bookID].getBookStatus() == BookStatus::rented)
+                    cout << "Book is " << to_string(books_[bookID].getBookStatus()) << " by " << getUserName(books_[bookID].getUserID()) << " (user ID: " << books_[bookID].getUserID() << ")" << endl;
+            }
+
+        if (!found)
+            cout << "\nNo books found in " << to_string(status) << " status." << endl;
+    }
+
+    void printUserInfo(const UserID userID)
+    {        
+        if (!users_.contains(userID))
+            cout << "\nUser with given ID does not exist in the library." << endl;
+        else
+        {
+            cout << '\n' << users_[userID] << endl;
+
+            bool displayBookList = true;
+            
+            for (auto const [bookID, book] : books_)
+            {
+                if (book.getUserID() == userID)
+                {
+                    if (displayBookList)
+                    {
+                        cout << "User has booked or rented the following book(s):\n";
+                        displayBookList = false;
+                    }
+                    
+                    cout << '\"' << book.getTitle() << "\" (book ID: " << bookID << ") is " << to_string(book.getBookStatus()) << endl;
+                }
+            }
+
+            if (displayBookList)
+                cout << "No books are assigned to this user." << endl;
+        }
+    }
+    
     void printUsers()
     {
+        cout << "<< Displaying all users >>" << endl;
         if (users_.empty())
-            cout << "No users found." << endl;
+            cout << "\nNo users found." << endl;
         else
             for (auto const [userID, user] : users_)
                 cout << "\nUser ID: " << userID << '\n' << user;
@@ -597,6 +603,7 @@ static void addFakeContent(Library* library)
     bool inputOK = false;
     short input { 0 };
 
+    cout << "<< Creating fake library content >>" << endl;
     cout << "How many fake books do you want to add?" << endl;
     
     while(!inputOK)
@@ -637,12 +644,224 @@ static void addFakeContent(Library* library)
     }
 }
 
+// Helper functions to communicate with user
+// (all user communication is handled outside of Library class)
+
+void addBook(Library* library)
+{
+    LibraryBook book;
+    string input { "" };
+        
+    cout << "<< Adding a new book >>" << endl;
+
+    bool inputOK = false;
+    cin.clear();
+            
+    while(!inputOK)
+    {                    
+        cout << "Please enter author's full name: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    book.setAuthor(input);
+    input.clear();
+    inputOK = false;
+            
+    while(!inputOK)
+    {                    
+        cout << "Please enter book's title: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    book.setTitle(input);
+    input.clear();
+    inputOK = false;
+
+    while(!inputOK)
+    {                    
+        cout << "Please enter book's publisher: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    book.setPublisher(input);
+    input.clear();
+    inputOK = false;
+
+    while(!inputOK)
+    {
+        cout << "Please enter book's ISBN (format: xxx-x-xx-xxxxxx-x): ";
+        cin >> input;
+        if(!input.empty())
+            inputOK = true;
+    }
+        
+    book.setISBN(input);
+
+    book.setBookStatus(BookStatus::available);
+        
+    // add book at new ID
+    BookID bookID = library -> addBook(book);
+    cout << "\nBook added at ID: " << bookID << endl;
+    library -> printBookInfo(bookID);
+
+    // Clearing the input buffer to ignore the leftover newline character
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+void addUser(Library* library)
+{
+    User user;
+    string input { "" };
+        
+    cout << "<< Adding a new user >>" << endl;
+        
+    bool inputOK = false;
+    cin.clear();
+
+    while(!inputOK)
+    {
+        cout << "Please enter user name: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    user.setName(input);
+    input.clear();
+    inputOK = false;
+
+    while(!inputOK)
+    {
+        cout << "Please enter user surname: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    user.setSurname(input);
+    input.clear();
+    inputOK = false;
+
+    while(!inputOK)
+    {
+        cout << "Please enter user email: ";
+        getline(cin, input);
+        if(!input.empty())
+            inputOK = true;
+    }
+
+    user.setEmail(input);
+
+    // add user at new ID
+    UserID userID = library -> addUser(user);
+    cout << "\nUser added at ID: " << userID << endl;
+        
+    // Clearing the input buffer to ignore the leftover newline character
+    //cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+void printBooksInStatus(Library* library)
+{
+    BookStatus status { BookStatus::available };
+
+    cout << "<< Display books in status >>\n"
+            "Select status:"
+            "\n1. " << to_string(BookStatus::rented) <<
+            "\n2. " << to_string(BookStatus::booked) <<
+            "\n3. " << to_string(BookStatus::available) <<
+            "\n4. " << to_string(BookStatus::unavailable) << endl;
+    
+    bool inputOK = false;
+    int input { 0 };
+    
+    while(!inputOK)
+    {
+        input = getInput("Please select an option (1 - 4): ");
+        if(input >= 1 and input <= 4)
+            inputOK = true;
+    }
+
+    switch(input)
+    {
+        case 1:
+            status = BookStatus::rented;
+            break;
+        case 2:
+            status = BookStatus::booked;
+            break;
+        case 3:
+            status = BookStatus::available;
+            break;
+        case 4:
+            status = BookStatus::unavailable;
+            break;
+        default:
+            status = BookStatus::available;
+    }
+
+    library -> printBooksByStatus(status);
+}
+
+void rentBook(Library* library)
+{
+    cout << "<< Renting a book >>" << endl;
+
+    int input = getInput("Please enter book ID: ");
+    BookID bookID = static_cast<BookID>(input);
+    input = getInput("Please enter user ID: ");
+    UserID userID = static_cast<UserID>(input);
+
+    if (library -> getBookStatus(bookID) ==  BookStatus::available)
+        library -> setBookStatus(bookID, userID, BookStatus::rented);
+    else
+        cout << "\nInfo: Requested book is not available to rent." << endl;
+    
+    library -> printBookInfo(bookID);
+}
+
+void bookBook(Library* library)
+{
+    cout << "<< Booking a book >>" << endl;
+
+    int input = getInput("Please enter book ID: ");
+    BookID bookID = static_cast<BookID>(input);
+    input = getInput("Please enter user ID: ");
+    UserID userID = static_cast<UserID>(input);
+
+    if (library -> getBookStatus(bookID) ==  BookStatus::available)
+        library -> setBookStatus(bookID, userID, BookStatus::booked);
+    else
+        cout << "\nInfo: Requested book is not available to book." << endl;
+    
+    library -> printBookInfo(bookID);
+}
+
+void returnBook(Library* library)
+{
+    cout << "<< Returning a book >>" << endl;
+
+    int input = getInput("Please enter book ID: ");
+    BookID bookID = static_cast<BookID>(input);
+
+    if (library -> getBookStatus(bookID) ==  BookStatus::available)
+        cout << "Info: Requested book is already available to book or rent, no need to return it." << endl;
+    else if (library -> getBookStatus(bookID) ==  BookStatus::unavailable)
+        cout << "Info: Requested book is not available at the moment." << endl;
+    else
+    {
+        library -> setBookStatus(bookID, library -> getUserID(bookID), BookStatus::available);
+        cout << "\n\"" << library -> getBookTitle(bookID) << "\" (book ID: " << bookID << ") is now available for book or rent." << endl;
+    }
+}
+
 /* MAIN PROGRAM CODE */
-
-// helper functions used in menu and defined below main()
-
-BookID getBookID();
-
+// TODO: Clean up errors shown when user or book does not exist in the library (sometimes multiple ones are shown)
 int main()
 {
     Library library;
@@ -651,61 +870,107 @@ int main()
     srand(time(nullptr));
     
     // Welcome message
-    cout << "~~ Book Library ~~\n";
+    cout << "~~ HUBERT\'S BOOK LIBRARY ~~\n";
     
     while (true)
     {
-        cout << "\nWhat do you want to do?\n";
+        cout << "\n~~MAIN MENU~~\n";
         cout << "General operations:\n";
-        // 001. RENT A BOOK
-        // 002. BOOK A BOOK
-        cout << "    1: Display books in the library\n"
-                "    2: List users registered in the library\n";
+        cout << "    1: Display all books in the library\n"
+                "    2: Display books in status\n" 
+                "    3: List users registered in the library\n";
         cout << "Book operations:\n";
-        cout << "    3: Display book info\n"
-                "    4: Add new book to the library\n"
-                "    5: Remove a book from the library\n";
+        cout << "    4: Display book info\n"
+                "    5: Rent a book\n"
+                "    6: Book a book\n"
+                "    7: Return or unbook a book\n"
+                "    8: Add new book to the library\n"
+                "    9: Remove a book from the library\n";
         cout << "User operations:\n";
-        cout << "    6: Display user info\n"
-                "    7: Add new user to the library\n"
-                "    8: Remove a user from the library\n";
+        cout << "   10: Display user info\n"
+                "   11: Add new user to the library\n"
+                "   12: Remove a user from the library\n";
         cout << "Library operations:\n";
-        cout << "    9: Generate fake content\n";
+        cout << "   13: Generate fake content\n";
         cout << "    0: Exit" << endl;
 
         bool inputOK = false;
-        short input { 0 };
+        int input { 0 };
         
         while(!inputOK)
         {
-            input = getInput("Please select an option (1 - 9, 0 to exit): ");
-            if(input >= 0 and input <= 9)
+            input = getInput("Please select an option (1 - 13, 0 to exit): ");
+            if(input >= 0 and input <= 13)
                 inputOK = true;
         }
         
         switch (input)
         {
+            // 1: Display all books in the library
             case 1:
                 library.printBooks();
                 break;
 
+            // 2: Display books in status
             case 2:
+                printBooksInStatus(&library);
+                break;
+
+            // 3: List users registered in the library
+            case 3:
                 library.printUsers();
                 break;
 
-            case 3:
+            // 4: Display book info
+            case 4:                
+                cout << "<< Displaying a book by ID >>" << endl;
                 library.printBookInfo(getInput("Please enter Book ID: "));
                 break;
 
-            case 4:
-                library.addBook();
+            // 5: Rent a book
+            case 5:
+                rentBook(&library);
                 break;
 
-            case 5:
-                library.removeBook(getInput("Please enter Book ID: "));
+            // 6: Book a book
+            case 6:
+                bookBook(&library);
+                break;
+
+            // 7: Return or unbook a book
+            case 7:
+                returnBook(&library);
                 break;
             
+            // 8: Add new book to the library
+            case 8:
+                addBook(&library);
+                break;
+
+            // 9: Remove a book from the library
             case 9:
+                cout << "<< Removing a book by ID >>" << endl;
+                library.removeBook(getInput("Please enter Book ID: "));
+                break;
+
+            // 10: Display user info
+            case 10:
+                cout << "<< Displaying user info by ID >>" << endl;
+                library.printUserInfo(getInput("Please enter User ID: "));
+                break;
+            
+            // 11: Add new user to the library
+            case 11:
+                addUser(&library);
+                break;
+
+            // 12: Remove a user from the library
+            case 12:
+                cout << "<< Removing user by ID >>" << endl;
+                library.removeUser(getInput("Please enter User ID: "));
+                break;
+            
+            case 13:
                 addFakeContent(&library);
                 break;
             
