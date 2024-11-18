@@ -35,5 +35,16 @@ Home Assignment No. 4:
 * implement a card game
 
 Implemented game is based and follows the rules of Uno card game (https://www.unorules.org).
+
+## 05. Book Library
+Home Assignment No. 5:
+* create a program simulating book library using class inheritance and data structures from C++ Standard Library
+* program must support the following operations:
+  * add book
+  * delete book
+  * rent book to a user
+  * return book
+  * display state of library
+
 ___
 All code written by Hubert Pitura (hpitura@gmail.com)
