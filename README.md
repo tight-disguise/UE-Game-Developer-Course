@@ -5,7 +5,7 @@ This repository contains Visual Studio solution where each project is a C++ prog
 ## 01. SphereVolume
 Home Assignment No. 1:
 * calculate sphere volume based on radius provided by user
-* bonus: convert the result into different units
+* optional: convert the result into different units
 
 Project has to be compiled with C++20 support as it references `std::numbers::pi` constant introduced there.
 
@@ -45,6 +45,13 @@ Home Assignment No. 5:
   * rent book to a user
   * return book
   * display state of library
+* optional: read/write library state from/to a file (not done).
+
+## 06. Multithreaded App
+Home Assignment No. 6:
+* implement a simple app following producer-consumer template and using multi-threading and thread synchronization mechanisms
+* optional: add statistics UI (number of producers, number of consumers, items processed)
+* optional: add possibility to add/remove producers/consumers dynamically
 
 ___
 All code written by Hubert Pitura (hpitura@gmail.com)
