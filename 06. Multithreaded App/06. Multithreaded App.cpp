@@ -132,14 +132,14 @@ int main()
     producerThreads.reserve(noOfProducerThreads);
     for (size_t i = 0; i < noOfProducerThreads; ++i)
     {
-        producerThreads.emplace_back([i] { producer(i); } );
+        producerThreads.emplace_back([i] { producer(i + 1); } );
     }
 
     // Create consumer threads
     consumerThreads.reserve(noOfConsumerThreads);
     for (size_t i = 0; i < noOfConsumerThreads; ++i)
     {
-        consumerThreads.emplace_back([i] { consumer(i); } );
+        consumerThreads.emplace_back([i] { consumer(i + 1); } );
     }
 
     // Start the show!
