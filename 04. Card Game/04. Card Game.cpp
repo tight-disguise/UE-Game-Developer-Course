@@ -1,5 +1,5 @@
 /* 04. Card Game.cpp
-*
+ *
  * Unreal Engine Game Developer Course | Laba.IT
  *
  * Home Assignment No. 4:
@@ -926,5 +926,6 @@ int main()
             currentPlayer = CurrentPlayer::AI : currentPlayer = CurrentPlayer::Player;        
     }
 
+    system("pause");
     return 0;
 }
