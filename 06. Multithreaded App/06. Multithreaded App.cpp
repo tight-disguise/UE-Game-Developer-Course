@@ -20,12 +20,12 @@
 using namespace std;
 
 mutex mtx;
-condition_variable cv;
+condition_variable cvConsumers, cvProducers;
 queue<int> buffer;
 
 int elementsProcessed { 0 }, bufferSize { 10 };
 
-void producer()
+void producer(size_t threadNo)
 {
     int element { 0 };
     
@@ -34,28 +34,26 @@ void producer()
         // Sleep for a while
         this_thread::sleep_for(chrono::milliseconds(rand() % 1000));
 
-        // An arbitrary value that'll be pushed to a buffer
-        element = rand();
-
         // Lock the mutex
         unique_lock<mutex> lock(mtx);
 
         // Wait until there's space in the buffer
-        cv.wait(lock, [] { return buffer.size() < bufferSize; });
+        cvProducers.wait(lock, [] { return buffer.size() < bufferSize; });
     
         // Produce the value and display buffer state
-        buffer.push(element);
-        cout << "Produced: " << element << endl;
+        buffer.push(rand());
+        cout << "<<- Producer thread no.: " << threadNo << endl;
+        cout << "Value written: " << buffer.front() << endl;
         cout << "Elements in buffer: " << buffer.size() << '\n' << endl;
         
         // Notify one thread waiting
-        cv.notify_one();
+        cvConsumers.notify_one();
         // Unlock the mutex (not required, would happen anyway)
         lock.unlock();
     }
 }
 
-void consumer()
+void consumer(size_t threadNo)
 {
     while (true)
     {
@@ -65,16 +63,17 @@ void consumer()
         unique_lock<mutex> lock(mtx);
     
         // Wait until there's something in the buffer
-        cv.wait(lock, [] { return !buffer.empty(); });
+        cvConsumers.wait(lock, [] { return !buffer.empty(); });
 
         // Consume the value and display buffer state
-        cout << "Consumed: " << buffer.front() << endl;
+        cout << "->> Consumer thread no.: " << threadNo << endl;
+        cout << "Value read: " << to_string(buffer.front()) << endl;
         buffer.pop();
         cout << "Elements in buffer: " << buffer.size() << endl;
         cout << "Elements processed: " << ++elementsProcessed << '\n' << endl;
 
         // Notify one thread waiting
-        cv.notify_one();
+        cvProducers.notify_one();
         // Unlock the mutex (not required, would happen anyway)
         lock.unlock();
     }
@@ -89,12 +88,12 @@ int main()
 {
     vector<thread> producerThreads;
     vector<thread> consumerThreads;
-
+    
     // Seed for random generators
     srand(time(nullptr));
 
     cout << "<<< PRODUCE CONSUME >>>" << '\n'
-         << "  - A study into multithreading and producer/consumer pattern.\n" << endl;
+         << "--> A study into multithreading and producer/consumer pattern.\n" << endl;
 
     cout << "Produced elements are put into a buffer of definable size, consumers read from it.\n"
             "Program runs indefinitely, can be paused with Ctrl + S, or stopped with Ctrl + C." << endl;
@@ -133,14 +132,14 @@ int main()
     producerThreads.reserve(noOfProducerThreads);
     for (size_t i = 0; i < noOfProducerThreads; ++i)
     {
-        producerThreads.emplace_back([] { producer(); } );
+        producerThreads.emplace_back([i] { producer(i); } );
     }
 
     // Create consumer threads
     consumerThreads.reserve(noOfConsumerThreads);
     for (size_t i = 0; i < noOfConsumerThreads; ++i)
     {
-        consumerThreads.emplace_back([] { consumer(); } );
+        consumerThreads.emplace_back([i] { consumer(i); } );
     }
 
     // Start the show!
