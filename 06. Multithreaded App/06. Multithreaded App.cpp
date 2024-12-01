@@ -26,9 +26,7 @@ queue<int> buffer;
 int elementsProcessed { 0 }, bufferSize { 10 };
 
 void producer(size_t threadNo)
-{
-    int element { 0 };
-    
+{    
     while (true)
     {
         // Sleep for a while
