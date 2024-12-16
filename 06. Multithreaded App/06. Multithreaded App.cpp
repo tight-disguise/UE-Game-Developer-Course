@@ -55,6 +55,7 @@ void consumer(size_t threadNo)
 {
     while (true)
     {
+        // Sleep for a while
         this_thread::sleep_for(chrono::milliseconds(rand()%1000));
 
         // Lock the mutex
