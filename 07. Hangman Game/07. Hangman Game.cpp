@@ -12,6 +12,14 @@
  * Code written by Hubert Pitura (hpitura@gmail.com)
  */
 
+
+#include <iostream>
+#include <string>
+#include <charconv> // for getInput() function, needs C++20
+#include <cstdlib> // for system("pause")
+
+using namespace std;
+
 // Helper function to get correct input from user
 template<typename T = int>
 typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
@@ -19,7 +27,10 @@ typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
 /* MAIN PROGRAM CODE */
 int main()
 {
+
+    int c = getInput("Test: ");
     
+    system("pause");
     return 0;
 }
 
