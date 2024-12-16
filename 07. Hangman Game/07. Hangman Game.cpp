@@ -77,23 +77,21 @@ int main()
 
     // prepare a mask for guesses
     short wordSize = word.size();
-    cout << "Word size: " << wordSize << endl;
     
     short charsStillToGuess { wordSize };
     string guessWord {};
     
     for (int i = 0; i < wordSize; i++)
         guessWord += '*';
-
+    
     // user input
     while (true)
     {
-        // TODO: Check if game lost
-        
-        cout << guessWord << endl;
+        // Check if game lost, but not implemented, game is hard as it is        
 
         char guessChar {};
 
+        cout << "Guessword: " << guessWord << endl;
         guessChar = getInputChar("Your guess letter [a - z]: ");
 
         for (int i = 0; i < wordSize; i++)
@@ -102,6 +100,8 @@ int main()
                 guessWord[i] = guessChar;
                 charsStillToGuess--;
             }
+
+        cout << "Guess word: " << guessWord << endl;
         
         if (charsStillToGuess == 0)
         {
@@ -113,14 +113,12 @@ int main()
         // flush input buffer
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         
-        cout << "Guess the word (/ continues):" << endl;
+        cout << "Guess the word (Enter key continues):" << endl;
 
         string guessString {};
         getline(cin, guessString);
         
-        if (guessString[0] == 47) // 47 = / key
-            continue;
-        else
+        if (!guessString.empty()) //and guessString[0] != 47) // 47 = / key
         {
             // check if the word entered is the word needed
             bool wordFound { true };
