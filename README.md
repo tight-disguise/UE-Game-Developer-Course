@@ -53,5 +53,12 @@ Home Assignment No. 6:
 * optional: add statistics UI (number of producers, number of consumers, items processed)
 * optional: add possibility to add/remove producers/consumers dynamically
 
+## 07. Hangman Game
+Home Assignment No. 7:
+* implement Hangman word guessing game
+* use Git to track changes
+* word list should be read from file
+* optional: introduce score system based on how fast user guesses a word and number of guesses left
+* optional: introduce high scores system with data stored in file
 ___
 All code written by Hubert Pitura (hpitura@gmail.com)
