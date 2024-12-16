@@ -99,7 +99,7 @@ int main()
         
         // RENDER
         cout << "Turn: " << turn << " | Score: " << score << endl;
-        cout << "Guessword: " << guessWord << endl;
+        cout << "Guess word: " << guessWord << endl;
 
         // USER INPUT
         guessChar = getInputChar("Your guess letter [a - z]: ");
@@ -148,7 +148,7 @@ int main()
             // Check winning/loosing conditions
             if (wordFound)
             {
-                cout << "Congrats, you guessed correctly! You won! Your score: " << score << endl;
+                cout << "Congrats, you guessed correctly, you win! Your score: " << score << endl;
                 break;
             }
             else
@@ -169,7 +169,7 @@ int main()
         // Check if game lost due to score <= 0
         if (score <= 0)
         {
-            cout << "You lost! Your score is 0!" << endl;
+            cout << "Hanged! Your score is 0!" << endl;
             cout << "The word was: " << word << endl;
             break;
         }
