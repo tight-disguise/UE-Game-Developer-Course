@@ -12,11 +12,17 @@
  * Code written by Hubert Pitura (hpitura@gmail.com)
  */
 
+#define WINDOWS
+
+#ifdef WINDOWS
+#include <cstdlib> // for system("pause")
+#endif
 
 #include <iostream>
+#include<fstream>
 #include <string>
 #include <charconv> // for getInput() function, needs C++20
-#include <cstdlib> // for system("pause")
+#include <vector>
 
 using namespace std;
 
@@ -27,10 +33,35 @@ typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
 /* MAIN PROGRAM CODE */
 int main()
 {
+    ifstream dictFile ("dictionary.txt");
 
-    int c = getInput("Test: ");
+    string line;
+    vector<string> words;
+
+    if (dictFile.is_open())
+        while (getline(dictFile, line))
+            words.emplace_back(line);
+    else
+    {
+        cerr << "Unable to open dictionary.txt, game cannot continue." << endl;
+
+        #ifdef WINDOWS
+        system("pause");
+        #endif
+
+        return -1;
+    }
+
+    cout << words.size() << endl;
+    cout << line << endl;
     
+
+    int c = getInput("Say...:");
+    
+    #ifdef WINDOWS
     system("pause");
+    #endif
+
     return 0;
 }
 
