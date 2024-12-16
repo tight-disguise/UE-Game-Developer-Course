@@ -86,7 +86,7 @@ int main()
      * SPLASH SCREEN
      */
     cout << ">>> Welcome to HANGMAN! <<<\n"
-            "Game about death caused by your poor fluency in English vocabulary.\n" << endl;
+            "A game about death caused by your poor fluency in English vocabulary.\n" << endl;
     
     /*
      * GAME LOOP
