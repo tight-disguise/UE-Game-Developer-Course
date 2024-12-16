@@ -22,7 +22,12 @@
 #include<fstream>
 #include <string>
 #include <charconv> // for getInput() function, needs C++20
+#include <condition_variable> // for thread_wait
+#include <random>
 #include <vector>
+
+
+
 
 using namespace std;
 
@@ -33,14 +38,14 @@ typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
 /* MAIN PROGRAM CODE */
 int main()
 {
+    // Read words to a vector
     ifstream dictFile ("dictionary.txt");
-
-    string line;
-    vector<string> words;
+    string word;
+    vector<string> wordsVector;
 
     if (dictFile.is_open())
-        while (getline(dictFile, line))
-            words.emplace_back(line);
+        while (getline(dictFile, word))
+            wordsVector.emplace_back(word);
     else
     {
         cerr << "Unable to open dictionary.txt, game cannot continue." << endl;
@@ -52,10 +57,21 @@ int main()
         return -1;
     }
 
-    cout << words.size() << endl;
-    cout << line << endl;
-    
+    // Choose random word
+    random_device rd;
+    mt19937 e2(rd());
+    uniform_int_distribution<int> dist(0, wordsVector.size() - 1);
+    word = wordsVector.at(dist(e2));
 
+    // test
+    /*while ( true )
+    {
+        // Sleep for a while
+        this_thread::sleep_for(chrono::milliseconds(rand() % 100));
+        int c = dist(e2);
+        cout << c << ": " << wordsVector.at(c) << endl;
+    }*/
+    
     int c = getInput("Say...:");
     
     #ifdef WINDOWS
