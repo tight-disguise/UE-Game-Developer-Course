@@ -35,6 +35,15 @@ char getInputChar(const string& prompt);
 /* MAIN PROGRAM CODE */
 int main()
 {
+    // This is very simple implementation due to lack of time.
+    // Fully functional, but quite bare bones and could be refactored :D
+    // Anyway, the main learning objective was to use Git.
+    // So have I done... and the game works too :)
+
+    /*
+     * INITIALIZE
+     */
+    
     // Read words from dictionary file to a vector
     ifstream dictFile ("dictionary.txt");
     string word;
@@ -59,40 +68,43 @@ int main()
     mt19937 e2(rd());
     uniform_int_distribution<int> dist(0, wordsVector.size() - 1);
     
-    // in word we now have our target word
+    // in word variable we now have our target word
     word = wordsVector.at(dist(e2));
-    cout << "DEBUG: " << word << endl;
-    // prepare a mask for guesses
+    
+    // some variables
     short wordSize = word.size();
-    
     short charsStillToGuess { wordSize };
-    int score { STARTING_SCORE }, turn { 0 };
+    short turn { 0 };
+    int score { STARTING_SCORE };
     string guessWord {};
-    
+
+    // prepare mask for player guesses
     for (int i = 0; i < wordSize; i++)
         guessWord += '*';
+
+    /*
+     * SPLASH SCREEN
+     */
+    cout << ">>> Welcome to HANGMAN! <<<\n"
+            "Game about death caused by your poor fluency in English vocabulary.\n" << endl;
     
-    // user input
+    /*
+     * GAME LOOP
+     */
     while (true)
     {
-        // Check if game lost
-        if (score <= 0)
-        {
-            cout << "You lost! Your score is 0!" << endl;
-            cout << "The word was: " << word << endl;
-            break;
-        }
-
         char guessChar {};
         bool charFound { false };
         turn++;
-
-        // State info
+        
+        // RENDER
         cout << "Turn: " << turn << " | Score: " << score << endl;
         cout << "Guessword: " << guessWord << endl;
-        
+
+        // USER INPUT
         guessChar = getInputChar("Your guess letter [a - z]: ");
 
+        // GAME UPDATE
         for (int i = 0; i < wordSize; i++)
             if (word[i] == guessChar and guessWord[i] != guessChar)
             {
@@ -106,15 +118,9 @@ int main()
             score += STARTING_SCORE / NO_OF_ROUNDS;
         else
             score -= STARTING_SCORE / NO_OF_ROUNDS;
-        
+
+        // USER INPUT
         cout << "Guess word: " << guessWord << endl;
-        
-        if (charsStillToGuess == 0)
-        {
-            cout << guessWord << endl;
-            cout << "You won! Your score: " << score << endl;
-            break;
-        }
 
         // flush input buffer
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -124,7 +130,8 @@ int main()
         string guessString {};
         
         getline(cin, guessString);
-        
+
+        // GAME UPDATE
         if (!guessString.empty())
         {
             // check if the word entered is the word needed
@@ -134,6 +141,11 @@ int main()
                 if (word[i] != guessString[i])
                     wordFound = false;
 
+            // check the case if someone input starting substring of a word only
+            if (wordFound and wordSize != guessString.length())
+                wordFound = false;
+
+            // Check winning/loosing conditions
             if (wordFound)
             {
                 cout << "Congrats, you guessed correctly! You won! Your score: " << score << endl;
@@ -145,8 +157,25 @@ int main()
                 continue; // not needed but nice :)
             }
         }
+
+        // Check if game won due to all characters guessed
+        if (charsStillToGuess == 0)
+        {
+            cout << guessWord << endl;
+            cout << "You won! Your score: " << score << endl;
+            break;
+        }
+        
+        // Check if game lost due to score <= 0
+        if (score <= 0)
+        {
+            cout << "You lost! Your score is 0!" << endl;
+            cout << "The word was: " << word << endl;
+            break;
+        }
     }
-    
+
+    // some shenanigans
     #ifdef WINDOWS
     system("pause");
     #endif
@@ -154,6 +183,7 @@ int main()
     return 0;
 }
 
+// Get a char from user
 char getInputChar(const string& prompt)
 {
     cout << prompt;
@@ -169,6 +199,7 @@ char getInputChar(const string& prompt)
         {
             cout << prompt;
         }
-    }    
+    }
+    
     return inputChar;
 }
