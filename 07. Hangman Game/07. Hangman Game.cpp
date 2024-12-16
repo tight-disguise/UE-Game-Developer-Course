@@ -21,19 +21,15 @@
 #include <iostream>
 #include<fstream>
 #include <string>
-#include <charconv> // for getInput() function, needs C++20
-#include <condition_variable> // used for sleep_for() for test only
 #include <random>
 #include <vector>
 
-
-
-
 using namespace std;
 
-// Helper function to get correct input from user
-//template<typename T = char>
-//typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
+#define STARTING_SCORE 100000 // points number at start
+#define NO_OF_ROUNDS 10 // each round we decrement STARTING_SCORE / NO_OF_ROUNDS from score, if score <= 0, player looses
+
+// Helper function to get char input from user
 char getInputChar(const string& prompt);
 
 /* MAIN PROGRAM CODE */
@@ -62,23 +58,15 @@ int main()
     random_device rd;
     mt19937 e2(rd());
     uniform_int_distribution<int> dist(0, wordsVector.size() - 1);
+    
+    // in word we now have our target word
     word = wordsVector.at(dist(e2));
-
-    // some test
-    /*while ( true )
-    {
-        // Sleep for a while
-        this_thread::sleep_for(chrono::milliseconds(rand() % 100));
-        int c = dist(e2);
-        cout << c << ": " << wordsVector.at(c) << endl;
-    }*/
-
-    // in word we now have our target
-
+    cout << "DEBUG: " << word << endl;
     // prepare a mask for guesses
     short wordSize = word.size();
     
     short charsStillToGuess { wordSize };
+    int score { STARTING_SCORE }, turn { 0 };
     string guessWord {};
     
     for (int i = 0; i < wordSize; i++)
@@ -87,11 +75,22 @@ int main()
     // user input
     while (true)
     {
-        // Check if game lost, but not implemented, game is hard as it is        
+        // Check if game lost
+        if (score <= 0)
+        {
+            cout << "You lost! Your score is 0!" << endl;
+            cout << "The word was: " << word << endl;
+            break;
+        }
 
         char guessChar {};
+        bool charFound { false };
+        turn++;
 
+        // State info
+        cout << "Turn: " << turn << " | Score: " << score << endl;
         cout << "Guessword: " << guessWord << endl;
+        
         guessChar = getInputChar("Your guess letter [a - z]: ");
 
         for (int i = 0; i < wordSize; i++)
@@ -99,14 +98,21 @@ int main()
             {
                 guessWord[i] = guessChar;
                 charsStillToGuess--;
+                charFound = true;
             }
 
+        // score counting
+        if (charFound)
+            score += STARTING_SCORE / NO_OF_ROUNDS;
+        else
+            score -= STARTING_SCORE / NO_OF_ROUNDS;
+        
         cout << "Guess word: " << guessWord << endl;
         
         if (charsStillToGuess == 0)
         {
             cout << guessWord << endl;
-            cout << "You won!" << endl;
+            cout << "You won! Your score: " << score << endl;
             break;
         }
 
@@ -116,28 +122,26 @@ int main()
         cout << "Guess the word (Enter key continues):" << endl;
 
         string guessString {};
+        
         getline(cin, guessString);
         
-        if (!guessString.empty()) //and guessString[0] != 47) // 47 = / key
+        if (!guessString.empty())
         {
             // check if the word entered is the word needed
             bool wordFound { true };
             
             for (int i = 0; i < guessString.length(); i++)
                 if (word[i] != guessString[i])
-                {
                     wordFound = false;
-                    //break;
-                }
 
             if (wordFound)
             {
-                cout << "Congrats, you guessed correctly! You won!" << endl;
+                cout << "Congrats, you guessed correctly! You won! Your score: " << score << endl;
                 break;
             }
             else
             {
-                cout << guessString << " and " << guessWord << " are not the same!" << endl;
+                cout << guessString << " and " << guessWord << " are not the same!\n" << endl;
                 continue; // not needed but nice :)
             }
         }
