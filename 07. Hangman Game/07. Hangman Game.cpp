@@ -22,7 +22,7 @@
 #include<fstream>
 #include <string>
 #include <charconv> // for getInput() function, needs C++20
-#include <condition_variable> // for thread_wait
+#include <condition_variable> // used for sleep_for() for test only
 #include <random>
 #include <vector>
 
@@ -32,13 +32,14 @@
 using namespace std;
 
 // Helper function to get correct input from user
-template<typename T = int>
-typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
+//template<typename T = char>
+//typename T getInput(const string& prm) requires (is_arithmetic_v<T>);
+char getInputChar(const string& prompt);
 
 /* MAIN PROGRAM CODE */
 int main()
 {
-    // Read words to a vector
+    // Read words from dictionary file to a vector
     ifstream dictFile ("dictionary.txt");
     string word;
     vector<string> wordsVector;
@@ -57,13 +58,13 @@ int main()
         return -1;
     }
 
-    // Choose random word
+    // Choose a random word (rand % size didn't work correctly)
     random_device rd;
     mt19937 e2(rd());
     uniform_int_distribution<int> dist(0, wordsVector.size() - 1);
     word = wordsVector.at(dist(e2));
 
-    // test
+    // some test
     /*while ( true )
     {
         // Sleep for a while
@@ -71,8 +72,78 @@ int main()
         int c = dist(e2);
         cout << c << ": " << wordsVector.at(c) << endl;
     }*/
+
+    // in word we now have our target
+
+    // prepare a mask for guesses
+    short wordSize = word.size();
+    cout << "Word size: " << wordSize << endl;
     
-    int c = getInput("Say...:");
+    short charsStillToGuess { wordSize };
+    string guessWord {};
+    
+    for (int i = 0; i < wordSize; i++)
+        guessWord += '*';
+
+    // user input
+    while (true)
+    {
+        // TODO: Check if game lost
+        
+        cout << guessWord << endl;
+
+        char guessChar {};
+
+        guessChar = getInputChar("Your guess letter [a - z]: ");
+
+        for (int i = 0; i < wordSize; i++)
+            if (word[i] == guessChar and guessWord[i] != guessChar)
+            {
+                guessWord[i] = guessChar;
+                charsStillToGuess--;
+            }
+        
+        if (charsStillToGuess == 0)
+        {
+            cout << guessWord << endl;
+            cout << "You won!" << endl;
+            break;
+        }
+
+        // flush input buffer
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        
+        cout << "Guess the word (/ continues):" << endl;
+
+        string guessString {};
+        getline(cin, guessString);
+        
+        if (guessString[0] == 47) // 47 = / key
+            continue;
+        else
+        {
+            // check if the word entered is the word needed
+            bool wordFound { true };
+            
+            for (int i = 0; i < guessString.length(); i++)
+                if (word[i] != guessString[i])
+                {
+                    wordFound = false;
+                    //break;
+                }
+
+            if (wordFound)
+            {
+                cout << "Congrats, you guessed correctly! You won!" << endl;
+                break;
+            }
+            else
+            {
+                cout << guessString << " and " << guessWord << " are not the same!" << endl;
+                continue; // not needed but nice :)
+            }
+        }
+    }
     
     #ifdef WINDOWS
     system("pause");
@@ -81,29 +152,21 @@ int main()
     return 0;
 }
 
-// C++ black magic, not sure how this works, but it works :D
-template<typename T = int>
-typename T getInput(const string& prm) requires (is_arithmetic_v<T>)
+char getInputChar(const string& prompt)
 {
-    T num {};
-    
-    for (string inp;;)
+    cout << prompt;
+    char inputChar {};
+    bool inputOK { false };
+
+    while (!inputOK)
     {
-        cin.clear();
-        cout << prm;
-        
-        if (getline(cin, inp) && !inp.empty())
+        cin >> inputChar;
+        if (inputChar >= 'a' and inputChar <= 'z')
+            inputOK = true;
+        else
         {
-            const auto first {find_if(inp.begin(), inp.end(), [](unsigned ch) {return !isspace(ch); })};
-            const auto end {find_if(inp.rbegin(), inp.rend(), [](unsigned ch) {return !isspace(ch); }).base()};
-            const auto res {from_chars(to_address(first), to_address(end), num)};
-
-            if (res.ec == errc {} && res.ptr == to_address(end))
-                return num;
+            cout << prompt;
         }
-
-        // cout << "Invalid input. a(n) " << typeid(T).name() << '\n';
-        
-        cout << "Invalid input. ";
     }    
+    return inputChar;
 }
